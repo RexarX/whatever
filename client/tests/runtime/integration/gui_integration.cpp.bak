@@ -1,0 +1,289 @@
+#include <doctest/doctest.h>
+
+#include <client/app/app.hpp>
+#include <client/app/gui_window.hpp>
+
+#include <QGuiApplication>
+#include <QTimer>
+
+#include <chrono>
+#include <thread>
+
+TEST_SUITE("client::GUI Integration") {
+  TEST_CASE("GUI: Application starts with GUI enabled") {
+    int argc = 2;
+    char arg0[] = "test";
+    char arg1[] = "--headless";
+    char* argv[] = {arg0, arg1};
+
+    // Parse config with headless mode
+    auto config = client::ParseArguments(argc, argv);
+    CHECK(config.headless);
+
+    // Create app in headless mode
+    client::App app(argc, argv, config, false);
+
+    CHECK_FALSE(app.GuiEnabled());
+    CHECK(app.GetGuiWindow() == nullptr);
+  }
+
+  TEST_CASE("GUI: Application creates window in non-headless mode") {
+    int argc = 3;
+    char arg0[] = "test";
+    char arg1[] = "--max-frames";
+    char arg2[] = "1";
+    char* argv[] = {arg0, arg1, arg2};
+
+    auto config = client::ParseArguments(argc, argv);
+    config.headless = false;
+    config.max_frames = 1;
+
+    // Can't actually test GUI without display, but we can verify the flag
+    CHECK_FALSE(config.headless);
+    CHECK_EQ(config.max_frames, 1u);
+  }
+
+  TEST_CASE("GUI: GuiWindow can be created with QGuiApplication") {
+    static int argc = 1;
+    static char arg0[] = "test";
+    static char* argv[] = {arg0};
+
+    // Ensure QGuiApplication exists
+    if (!QGuiApplication::instance()) {
+      static QGuiApplication app(argc, argv);
+    }
+
+    // Create GUI window
+    client::GuiWindow window;
+
+    // Window should be created (QML loading happens asynchronously)
+    // Just verify no crash during construction
+    CHECK_NOTHROW(window.show());
+    CHECK_NOTHROW(window.close());
+  }
+
+  TEST_CASE("GUI: ModelConfig integration with App") {
+    int argc = 1;
+    char arg0[] = "test";
+    char* argv[] = {arg0};
+
+    auto config = client::ParseArguments(argc, argv);
+
+    // Default model should be YuNet ONNX
+    CHECK_EQ(config.model_type, client::ModelType::kYuNetONNX);
+
+    // Model path should be set
+    CHECK_FALSE(config.face_tracker.model_path.empty());
+  }
+
+  TEST_CASE("GUI: Command line model type selection") {
+    SUBCASE("YuNet model type") {
+      int argc = 3;
+      char arg0[] = "test";
+      char arg1[] = "--model-type";
+      char arg2[] = "yunet";
+      char* argv[] = {arg0, arg1, arg2};
+
+      auto config = client::ParseArguments(argc, argv);
+      CHECK_EQ(config.model_type, client::ModelType::kYuNetONNX);
+    }
+
+    SUBCASE("ResNet10 model type") {
+      int argc = 3;
+      char arg0[] = "test";
+      char arg1[] = "--model-type";
+      char arg2[] = "resnet10";
+      char* argv[] = {arg0, arg1, arg2};
+
+      auto config = client::ParseArguments(argc, argv);
+      CHECK_EQ(config.model_type, client::ModelType::kResNet10Caffe);
+    }
+
+    SUBCASE("MobileNet model type") {
+      int argc = 3;
+      char arg0[] = "test";
+      char arg1[] = "--model-type";
+      char arg2[] = "mobilenet";
+      char* argv[] = {arg0, arg1, arg2};
+
+      auto config = client::ParseArguments(argc, argv);
+      CHECK_EQ(config.model_type, client::ModelType::kMobileNetCaffe);
+    }
+  }
+
+  TEST_CASE("GUI: Camera switching API") {
+    int argc = 1;
+    char arg0[] = "test";
+    char* argv[] = {arg0};
+
+    auto config = client::ParseArguments(argc, argv);
+    config.headless = true;
+    config.max_frames = 1;
+
+    client::App app(argc, argv, config, false);
+
+    // Test camera access methods
+    auto& camera = app.GetCamera();
+    CHECK_FALSE(camera.Active());
+
+    const auto device_count = client::Camera::AvailableDeviceCount();
+    const auto devices = client::Camera::AvailableDevices();
+    CHECK_EQ(device_count, devices.size());
+  }
+
+  TEST_CASE("GUI: ModelConfig all configurations are valid") {
+    const auto configs = client::ModelConfig::AllConfigs();
+
+    CHECK_EQ(configs.size(), 3);
+
+    for (const auto& config : configs) {
+      CHECK_FALSE(config.model_path.empty());
+      CHECK_GE(config.confidence_threshold, 0.0f);
+      CHECK_LE(config.confidence_threshold, 1.0f);
+      CHECK_GE(config.nms_threshold, 0.0f);
+      CHECK_LE(config.nms_threshold, 1.0f);
+      CHECK_GT(config.input_width, 0);
+      CHECK_GT(config.input_height, 0);
+    }
+  }
+
+  TEST_CASE("GUI: Frame display with various sizes") {
+    static int argc = 1;
+    static char arg0[] = "test";
+    static char* argv[] = {arg0};
+
+    if (!QGuiApplication::instance()) {
+      static QGuiApplication app(argc, argv);
+    }
+
+    client::GuiWindow window;
+
+    // Test updating frames of different sizes
+    const std::vector<std::pair<int, int>> sizes = {{640, 480}, {1280, 720}, {320, 240}, {1920, 1080}};
+
+    for (const auto& [width, height] : sizes) {
+      client::Frame frame(width, height, CV_8UC3);
+      frame.Mat().setTo(cv::Scalar(100, 150, 200));
+      CHECK_NOTHROW(window.UpdateFrame(frame));
+    }
+  }
+
+  TEST_CASE("GUI: Stats display updates") {
+    static int argc = 1;
+    static char arg0[] = "test";
+    static char* argv[] = {arg0};
+
+    if (!QGuiApplication::instance()) {
+      static QGuiApplication app(argc, argv);
+    }
+
+    client::GuiWindow window;
+
+    // Test various statistics
+    CHECK_NOTHROW(window.UpdateStats(0.0f, 0, 0));
+    CHECK_NOTHROW(window.UpdateStats(30.0f, 1000, 5));
+    CHECK_NOTHROW(window.UpdateStats(60.5f, 999999, 10));
+  }
+
+  TEST_CASE("GUI: Camera list updates") {
+    static int argc = 1;
+    static char arg0[] = "test";
+    static char* argv[] = {arg0};
+
+    if (!QGuiApplication::instance()) {
+      static QGuiApplication app(argc, argv);
+    }
+
+    client::GuiWindow window;
+
+    // Test with empty list
+    std::vector<client::CameraDeviceInfo> cameras;
+    CHECK_NOTHROW(window.UpdateCameraList(cameras, ""));
+
+    // Test with single camera
+    client::CameraDeviceInfo camera;
+    camera.id = "test_camera";
+    camera.description = "Test Camera";
+    camera.is_default = true;
+    cameras.push_back(camera);
+
+    CHECK_NOTHROW(window.UpdateCameraList(cameras, "test_camera"));
+  }
+
+  TEST_CASE("GUI: Model switching from command line") {
+    int argc = 5;
+    char arg0[] = "test";
+    char arg1[] = "--model-type";
+    char arg2[] = "resnet10";
+    char arg3[] = "--gpu";
+    char arg4[] = "--headless";
+    char* argv[] = {arg0, arg1, arg2, arg3, arg4};
+
+    auto config = client::ParseArguments(argc, argv);
+
+    CHECK_EQ(config.model_type, client::ModelType::kResNet10Caffe);
+    CHECK(config.face_tracker.use_gpu);
+    CHECK(config.headless);
+  }
+
+  TEST_CASE("GUI: FPS command line argument") {
+    int argc = 3;
+    char arg0[] = "test";
+    char arg1[] = "--fps";
+    char arg2[] = "15";
+    char* argv[] = {arg0, arg1, arg2};
+
+    auto config = client::ParseArguments(argc, argv);
+
+    CHECK_EQ(config.camera.preferred_fps, 15);
+  }
+
+  TEST_CASE("GUI: FPS argument with throttling") {
+    int argc = 3;
+    char arg0[] = "test";
+    char arg1[] = "--fps";
+    char arg2[] = "1";
+    char* argv[] = {arg0, arg1, arg2};
+
+    auto config = client::ParseArguments(argc, argv);
+
+    CHECK_EQ(config.camera.preferred_fps, 1);
+    CHECK(config.camera.enable_throttling);
+  }
+
+  TEST_CASE("GUI: Face detection result with distance") {
+    static int argc = 1;
+    static char arg0[] = "test";
+    static char* argv[] = {arg0};
+
+    if (!QGuiApplication::instance()) {
+      static QGuiApplication app(argc, argv);
+    }
+
+    client::GuiWindow window;
+
+    client::FaceDetectionResult result;
+    result.frame_id = 1;
+    result.processing_time_ms = 15.0f;
+
+    // Add faces with distance info
+    client::FaceData face1;
+    face1.bounding_box = {100.0f, 100.0f, 200.0f, 200.0f};
+    face1.confidence = 0.95f;
+    face1.relative_distance = 0.8f;  // Close
+    face1.track_id = 1;
+
+    client::FaceData face2;
+    face2.bounding_box = {400.0f, 100.0f, 50.0f, 50.0f};
+    face2.confidence = 0.85f;
+    face2.relative_distance = 0.2f;  // Far
+    face2.track_id = 2;
+
+    result.faces = {face1, face2};
+
+    client::Frame frame(640, 480, CV_8UC3);
+    frame.Mat().setTo(cv::Scalar(100, 150, 200));
+
+    CHECK_NOTHROW(window.UpdateFrame(frame, result));
+  }
+}

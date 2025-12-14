@@ -1,0 +1,197 @@
+// Shared Protocol Buffer Messages
+// This file defines the communication protocol between the client and embedded device.
+// Both client (full protobuf) and embedded (protobuf-lite) use these definitions.
+
+syntax = "proto3";
+
+package app;
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+// Device connection state
+enum ConnectionState {
+    CONNECTION_STATE_UNSPECIFIED = 0;
+    CONNECTION_STATE_DISCONNECTED = 1;
+    CONNECTION_STATE_CONNECTING = 2;
+    CONNECTION_STATE_CONNECTED = 3;
+    CONNECTION_STATE_ERROR = 4;
+}
+
+// Command types for device control
+enum CommandType {
+    COMMAND_TYPE_UNSPECIFIED = 0;
+    COMMAND_TYPE_MOVE = 1;           // Move servos to position
+    COMMAND_TYPE_HOME = 2;           // Move servos to home position
+    COMMAND_TYPE_CALIBRATE = 3;      // Start calibration
+    COMMAND_TYPE_STOP = 4;           // Emergency stop
+    COMMAND_TYPE_GET_STATUS = 5;     // Request device status
+    COMMAND_TYPE_SET_CONFIG = 6;     // Update device configuration
+    COMMAND_TYPE_PING = 7;           // Keepalive ping
+}
+
+// Response status codes
+enum StatusCode {
+    STATUS_CODE_UNSPECIFIED = 0;
+    STATUS_CODE_OK = 1;
+    STATUS_CODE_ERROR = 2;
+    STATUS_CODE_INVALID_COMMAND = 3;
+    STATUS_CODE_OUT_OF_RANGE = 4;
+    STATUS_CODE_BUSY = 5;
+    STATUS_CODE_NOT_CALIBRATED = 6;
+}
+
+// ============================================================================
+// Basic Types
+// ============================================================================
+
+// 2D position for servo angles (pan/tilt)
+message ServoPosition {
+    // Pan angle in degrees (-90 to +90, 0 = center)
+    float pan = 1;
+    // Tilt angle in degrees (-45 to +45, 0 = center)
+    float tilt = 2;
+}
+
+// Device configuration parameters
+message DeviceConfig {
+    // Servo speed (0.0-1.0, 1.0 = max speed)
+    float servo_speed = 1;
+    // Servo smoothing factor (0.0-1.0, higher = smoother but slower response)
+    float smoothing = 2;
+    // Dead zone for movement (minimum angle change to trigger movement)
+    float dead_zone = 3;
+    // Invert pan axis
+    bool invert_pan = 4;
+    // Invert tilt axis
+    bool invert_tilt = 5;
+    // Pan angle limits
+    float pan_min = 6;
+    float pan_max = 7;
+    // Tilt angle limits
+    float tilt_min = 8;
+    float tilt_max = 9;
+}
+
+// ============================================================================
+// Commands (Client -> Embedded)
+// ============================================================================
+
+// Move command - move servos to track face
+message MoveCommand {
+    // Optional: directly specify target servo position
+    ServoPosition target_position = 2;
+    // Use face_rect if true, target_position if false
+    bool use_face_tracking = 3;
+}
+
+// Calibration command
+message CalibrateCommand {
+    // Calibration mode
+    enum Mode {
+        MODE_UNSPECIFIED = 0;
+        MODE_CENTER = 1;     // Set current position as center
+        MODE_LIMITS = 2;     // Calibrate range limits
+        MODE_FULL = 3;       // Full calibration routine
+    }
+    Mode mode = 1;
+}
+
+// Configuration update command
+message SetConfigCommand {
+    DeviceConfig config = 1;
+}
+
+// Main command message (sent from client to embedded)
+message Command {
+    // Unique command ID for tracking responses
+    uint32 id = 1;
+    // Timestamp in milliseconds since connection established
+    uint64 timestamp_ms = 2;
+    // Command type
+    CommandType type = 3;
+
+    // Command-specific payload (only one should be set based on type)
+    oneof payload {
+        MoveCommand move = 10;
+        CalibrateCommand calibrate = 11;
+        SetConfigCommand set_config = 12;
+    }
+}
+
+// ============================================================================
+// Responses (Embedded -> Client)
+// ============================================================================
+
+// Device status information
+message DeviceStatus {
+    // Current servo position
+    ServoPosition current_position = 1;
+    // Target servo position (may differ from current during movement)
+    ServoPosition target_position = 2;
+    // Is the device calibrated?
+    bool is_calibrated = 3;
+    // Is the device currently moving?
+    bool is_moving = 4;
+    // Current configuration
+    DeviceConfig config = 5;
+    // Uptime in milliseconds
+    uint64 uptime_ms = 6;
+    // Free heap memory in bytes
+    uint32 free_heap = 7;
+    // WiFi signal strength (RSSI) if using WiFi
+    sint32 wifi_rssi = 8;
+}
+
+// Error information
+message ErrorInfo {
+    StatusCode code = 1;
+    string message = 2;
+}
+
+// Main response message (sent from embedded to client)
+message Response {
+    // ID of the command this is responding to (0 for unsolicited messages)
+    uint32 command_id = 1;
+    // Timestamp in milliseconds since device boot
+    uint64 timestamp_ms = 2;
+    // Status code
+    StatusCode status = 3;
+
+    // Response-specific payload
+    oneof payload {
+        DeviceStatus device_status = 10;
+        ErrorInfo error = 11;
+    }
+}
+
+// ============================================================================
+// Connection Management
+// ============================================================================
+
+// Handshake message (sent by client when connecting)
+message Handshake {
+    // Protocol version (for compatibility checking)
+    uint32 protocol_version = 1;
+    // Client identification string
+    string client_id = 2;
+    // Requested features
+    repeated string features = 3;
+}
+
+// Handshake response (sent by embedded)
+message HandshakeResponse {
+    // Protocol version supported by device
+    uint32 protocol_version = 1;
+    // Device identification
+    string device_id = 2;
+    // Firmware version
+    string firmware_version = 3;
+    // Device capabilities/features
+    repeated string supported_features = 4;
+    // Connection accepted?
+    bool accepted = 5;
+    // Rejection reason (if not accepted)
+    string rejection_reason = 6;
+}

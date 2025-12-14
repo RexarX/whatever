@@ -39,3 +39,53 @@
 
 # debug information files
 *.dwo
+
+# Build files
+out
+build
+bin
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps
+CMakeSettings.json
+CMakeUserPresets.json
+
+# CPM
+.cpm_cache
+
+# Python
+*.pyc
+__pycache__
+
+# Editors
+.sln
+.vcxproj
+.vs
+.vscode
+.zed
+.cache
+.idea
+
+# Logs
+logs
+*.log
+
+# ESP-IDF
+sdkconfig
+sdkconfig.defaults
+sdkconfig.old
+dependencies.lock
+managed_components
+
+# Embedded proto files
+embedded/generated
+
+# Client models
+client/models

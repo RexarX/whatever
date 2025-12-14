@@ -1,0 +1,129 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 16,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "description": "Base configuration for ESP-IDF projects",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF"
+      }
+    },
+    {
+      "name": "esp32",
+      "displayName": "ESP32",
+      "description": "Build for ESP32 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32"
+      }
+    },
+    {
+      "name": "esp32s2",
+      "displayName": "ESP32-S2",
+      "description": "Build for ESP32-S2 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32s2"
+      }
+    },
+    {
+      "name": "esp32s3",
+      "displayName": "ESP32-S3",
+      "description": "Build for ESP32-S3 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32s3"
+      }
+    },
+    {
+      "name": "esp32c3",
+      "displayName": "ESP32-C3",
+      "description": "Build for ESP32-C3 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32c3"
+      }
+    },
+    {
+      "name": "esp32c6",
+      "displayName": "ESP32-C6",
+      "description": "Build for ESP32-C6 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32c6"
+      }
+    },
+    {
+      "name": "esp32h2",
+      "displayName": "ESP32-H2",
+      "description": "Build for ESP32-H2 chip",
+      "inherits": "base",
+      "cacheVariables": {
+        "IDF_TARGET": "esp32h2"
+      }
+    },
+    {
+      "name": "esp32-tests",
+      "displayName": "ESP32 with Tests",
+      "description": "Build for ESP32 chip with tests enabled",
+      "inherits": "esp32",
+      "cacheVariables": {
+        "EMBEDDED_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "esp32",
+      "configurePreset": "esp32",
+      "displayName": "Build ESP32",
+      "description": "Build firmware for ESP32"
+    },
+    {
+      "name": "esp32s2",
+      "configurePreset": "esp32s2",
+      "displayName": "Build ESP32-S2",
+      "description": "Build firmware for ESP32-S2"
+    },
+    {
+      "name": "esp32s3",
+      "configurePreset": "esp32s3",
+      "displayName": "Build ESP32-S3",
+      "description": "Build firmware for ESP32-S3"
+    },
+    {
+      "name": "esp32c3",
+      "configurePreset": "esp32c3",
+      "displayName": "Build ESP32-C3",
+      "description": "Build firmware for ESP32-C3"
+    },
+    {
+      "name": "esp32c6",
+      "configurePreset": "esp32c6",
+      "displayName": "Build ESP32-C6",
+      "description": "Build firmware for ESP32-C6"
+    },
+    {
+      "name": "esp32h2",
+      "configurePreset": "esp32h2",
+      "displayName": "Build ESP32-H2",
+      "description": "Build firmware for ESP32-H2"
+    },
+    {
+      "name": "esp32-tests",
+      "configurePreset": "esp32-tests",
+      "displayName": "Build ESP32 with Tests",
+      "description": "Build firmware for ESP32 with tests"
+    }
+  ]
+}

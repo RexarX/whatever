@@ -1,0 +1,7 @@
+## IDF Component for Bluetooth SPP communication
+version: "0.1.0"
+description: "Bluetooth Serial Port Profile (SPP) server for ESP32 face tracker"
+
+dependencies:
+  idf:
+    version: ">=5.0.0"

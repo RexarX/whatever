@@ -1,0 +1,16 @@
+# Nanopb options for embedded firmware
+# This file configures nanopb code generation for resource-constrained embedded systems
+
+# String field maximum lengths
+app.Handshake.client_id                     max_size:32
+app.HandshakeResponse.device_id             max_size:32
+app.HandshakeResponse.firmware_version      max_size:16
+app.HandshakeResponse.rejection_reason      max_size:64
+app.ErrorInfo.message                       max_size:64
+
+# Repeated field maximum counts
+app.Handshake.features                      max_count:8, max_size:16
+app.HandshakeResponse.supported_features    max_count:8, max_size:16
+
+# Use static allocation for all messages (no malloc)
+*                                                   type:FT_STATIC

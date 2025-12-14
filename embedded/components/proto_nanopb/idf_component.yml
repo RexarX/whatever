@@ -1,0 +1,10 @@
+## ESP-IDF Component Manifest for proto_nanopb
+## This component provides nanopb integration with custom proto file generation
+## Nanopb library is included as a git submodule in embedded/third_party/nanopb
+
+version: "1.0.0"
+description: "Nanopb wrapper component with automatic proto file generation from .proto files"
+
+dependencies:
+  idf:
+    version: ">=5.0"

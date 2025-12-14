@@ -1,0 +1,9 @@
+[submodule "client/third_party/ctti"]
+	path = client/third_party/ctti
+	url = https://github.com/RexarX/ctti.git
+[submodule "third_party/doctest"]
+	path = third_party/doctest
+	url = https://github.com/doctest/doctest.git
+[submodule "embedded/third_party/nanopb"]
+	path = embedded/third_party/nanopb
+	url = https://github.com/nanopb/nanopb.git

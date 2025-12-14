@@ -1,0 +1,18 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <!--
+      Embedded model files for Android packaging.
+
+      NOTE:
+      - These are embedded into the APK.
+      - OpenCV cannot load models directly from ":/..." resources, so the app
+        should copy them to a real filesystem path (e.g. AppDataLocation) before
+        using them.
+    -->
+    <qresource prefix="/models">
+        <file alias="face_detection_yunet_2023mar.onnx">../../models/face_detection_yunet_2023mar.onnx</file>
+        <file alias="res10_300x300_ssd_deploy.prototxt">../../models/res10_300x300_ssd_deploy.prototxt</file>
+        <file alias="res10_300x300_ssd_deploy_broken.prototxt">../../models/res10_300x300_ssd_deploy_broken.prototxt</file>
+        <file alias="res10_300x300_ssd_iter_140000.caffemodel">../../models/res10_300x300_ssd_iter_140000.caffemodel</file>
+    </qresource>
+</RCC>

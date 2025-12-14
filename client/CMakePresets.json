@@ -1,0 +1,566 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "description": "Base configuration for all presets",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "platform-linux",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Linux platform configuration",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "platform-macos",
+      "hidden": true,
+      "inherits": "base",
+      "description": "macOS platform configuration",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "platform-windows",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Windows platform configuration",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": ["Windows"]
+        }
+      }
+    },
+    {
+      "name": "generator-ninja",
+      "hidden": true,
+      "description": "Use Ninja generator",
+      "generator": "Ninja"
+    },
+    {
+      "name": "generator-makefiles",
+      "hidden": true,
+      "description": "Use Unix Makefiles generator",
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "generator-vs2022",
+      "hidden": true,
+      "description": "Use Visual Studio 2022 generator",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64"
+    },
+    {
+      "name": "compiler-gcc",
+      "hidden": true,
+      "description": "Use GCC compiler",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "compiler-clang",
+      "hidden": true,
+      "description": "Use Clang compiler",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "compiler-msvc",
+      "hidden": true,
+      "description": "Use MSVC compiler",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl"
+      }
+    },
+    {
+      "name": "build-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "build-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CLIENT_ENABLE_LTO": "ON"
+      }
+    },
+    {
+      "name": "build-relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "with-tests",
+      "hidden": true,
+      "cacheVariables": {
+        "CLIENT_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "linux-gcc-debug",
+      "displayName": "Linux GCC Debug",
+      "description": "Debug build using GCC on Linux",
+      "binaryDir": "${sourceDir}/build/debug/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-gcc",
+        "build-debug"
+      ]
+    },
+    {
+      "name": "linux-gcc-release",
+      "displayName": "Linux GCC Release",
+      "description": "Release build using GCC on Linux",
+      "binaryDir": "${sourceDir}/build/release/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-gcc",
+        "build-release"
+      ]
+    },
+    {
+      "name": "linux-gcc-relwithdebinfo",
+      "displayName": "Linux GCC RelWithDebInfo",
+      "description": "RelWithDebInfo build using GCC on Linux",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-gcc",
+        "build-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-clang-debug",
+      "displayName": "Linux Clang Debug",
+      "description": "Debug build using Clang on Linux",
+      "binaryDir": "${sourceDir}/build/debug/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-clang",
+        "build-debug"
+      ]
+    },
+    {
+      "name": "linux-clang-release",
+      "displayName": "Linux Clang Release",
+      "description": "Release build using Clang on Linux",
+      "binaryDir": "${sourceDir}/build/release/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-clang",
+        "build-release"
+      ]
+    },
+    {
+      "name": "linux-clang-relwithdebinfo",
+      "displayName": "Linux Clang RelWithDebInfo",
+      "description": "RelWithDebInfo build using Clang on Linux",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/linux",
+      "inherits": [
+        "platform-linux",
+        "generator-ninja",
+        "compiler-clang",
+        "build-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "macos-clang-debug",
+      "displayName": "macOS Clang Debug",
+      "description": "Debug build using Clang on macOS",
+      "binaryDir": "${sourceDir}/build/debug/darwin",
+      "inherits": [
+        "platform-macos",
+        "generator-ninja",
+        "compiler-clang",
+        "build-debug"
+      ]
+    },
+    {
+      "name": "macos-clang-release",
+      "displayName": "macOS Clang Release",
+      "description": "Release build using Clang on macOS",
+      "binaryDir": "${sourceDir}/build/release/darwin",
+      "inherits": [
+        "platform-macos",
+        "generator-ninja",
+        "compiler-clang",
+        "build-release"
+      ]
+    },
+    {
+      "name": "macos-clang-relwithdebinfo",
+      "displayName": "macOS Clang RelWithDebInfo",
+      "description": "RelWithDebInfo build using Clang on macOS",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/darwin",
+      "inherits": [
+        "platform-macos",
+        "generator-ninja",
+        "compiler-clang",
+        "build-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "windows-msvc-debug",
+      "displayName": "Windows MSVC Debug",
+      "description": "Debug build using MSVC on Windows",
+      "binaryDir": "${sourceDir}/build/debug/windows",
+      "inherits": ["platform-windows", "generator-vs2022", "build-debug"]
+    },
+    {
+      "name": "windows-msvc-release",
+      "displayName": "Windows MSVC Release",
+      "description": "Release build using MSVC on Windows",
+      "binaryDir": "${sourceDir}/build/release/windows",
+      "inherits": ["platform-windows", "generator-vs2022", "build-release"]
+    },
+    {
+      "name": "windows-msvc-relwithdebinfo",
+      "displayName": "Windows MSVC RelWithDebInfo",
+      "description": "RelWithDebInfo build using MSVC on Windows",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/windows",
+      "inherits": [
+        "platform-windows",
+        "generator-vs2022",
+        "build-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "windows-clang-debug",
+      "displayName": "Windows Clang Debug",
+      "description": "Debug build using Clang on Windows",
+      "binaryDir": "${sourceDir}/build/debug/windows",
+      "inherits": [
+        "platform-windows",
+        "generator-ninja",
+        "compiler-clang",
+        "build-debug"
+      ]
+    },
+    {
+      "name": "windows-clang-release",
+      "displayName": "Windows Clang Release",
+      "description": "Release build using Clang on Windows",
+      "binaryDir": "${sourceDir}/build/release/windows",
+      "inherits": [
+        "platform-windows",
+        "generator-ninja",
+        "compiler-clang",
+        "build-release"
+      ]
+    },
+    {
+      "name": "windows-clang-relwithdebinfo",
+      "displayName": "Windows Clang RelWithDebInfo",
+      "description": "RelWithDebInfo build using Clang on Windows",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/windows",
+      "inherits": [
+        "platform-windows",
+        "generator-ninja",
+        "compiler-clang",
+        "build-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "android-qt-debug-arm64",
+      "displayName": "Android Qt Debug (arm64-v8a)",
+      "description": "Debug build for Android arm64 using Ninja",
+      "binaryDir": "${sourceDir}/build/debug/android-arm64",
+      "inherits": ["generator-ninja", "build-debug"],
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Android",
+        "CMAKE_TOOLCHAIN_FILE": "$env{QT_ANDROID_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK_ROOT}",
+        "CMAKE_ANDROID_API": "28",
+        "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a",
+        "CMAKE_ANDROID_STL_TYPE": "c++_shared",
+        "ANDROID_SDK_ROOT": "$env{ANDROID_SDK_ROOT}",
+        "ANDROID_NDK_ROOT": "$env{ANDROID_NDK_ROOT}",
+        "QT_ANDROID_DIR": "$env{QT_ANDROID_DIR}",
+        "CMAKE_PREFIX_PATH": "$env{QT_ANDROID_DIR}",
+        "OpenCV_DIR": "$env{OPENCV_ANDROID_SDK}/sdk/native/jni"
+      }
+    },
+    {
+      "name": "android-qt-relwithdebinfo-arm64",
+      "displayName": "Android Qt RelWithDebInfo (arm64-v8a)",
+      "description": "RelWithDebInfo build for Android arm64 using Ninja",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo/android-arm64",
+      "inherits": ["generator-ninja", "build-relwithdebinfo"],
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Android",
+        "CMAKE_TOOLCHAIN_FILE": "$env{QT_ANDROID_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK_ROOT}",
+        "CMAKE_ANDROID_API": "28",
+        "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a",
+        "CMAKE_ANDROID_STL_TYPE": "c++_shared",
+        "ANDROID_SDK_ROOT": "$env{ANDROID_SDK_ROOT}",
+        "ANDROID_NDK_ROOT": "$env{ANDROID_NDK_ROOT}",
+        "QT_ANDROID_DIR": "$env{QT_ANDROID_DIR}",
+        "CMAKE_PREFIX_PATH": "$env{QT_ANDROID_DIR}",
+        "OpenCV_DIR": "$env{OPENCV_ANDROID_SDK}/sdk/native/jni"
+      }
+    },
+    {
+      "name": "android-qt-release-arm64",
+      "displayName": "Android Qt Release (arm64-v8a)",
+      "description": "Release build for Android arm64 using Ninja",
+      "binaryDir": "${sourceDir}/build/release/android-arm64",
+      "inherits": ["generator-ninja", "build-release"],
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Android",
+        "CMAKE_TOOLCHAIN_FILE": "$env{QT_ANDROID_DIR}/lib/cmake/Qt6/qt.toolchain.cmake",
+        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK_ROOT}",
+        "CMAKE_ANDROID_API": "28",
+        "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a",
+        "CMAKE_ANDROID_STL_TYPE": "c++_shared",
+        "ANDROID_SDK_ROOT": "$env{ANDROID_SDK_ROOT}",
+        "ANDROID_NDK_ROOT": "$env{ANDROID_NDK_ROOT}",
+        "QT_ANDROID_DIR": "$env{QT_ANDROID_DIR}",
+        "CMAKE_PREFIX_PATH": "$env{QT_ANDROID_DIR}",
+        "OpenCV_DIR": "$env{OPENCV_ANDROID_SDK}/sdk/native/jni"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc-debug",
+      "displayName": "Build Linux GCC Debug",
+      "description": "Build using Linux GCC Debug configuration"
+    },
+    {
+      "name": "linux-gcc-release",
+      "configurePreset": "linux-gcc-release",
+      "displayName": "Build Linux GCC Release",
+      "description": "Build using Linux GCC Release configuration"
+    },
+    {
+      "name": "linux-gcc-relwithdebinfo",
+      "configurePreset": "linux-gcc-relwithdebinfo",
+      "displayName": "Build Linux GCC RelWithDebInfo",
+      "description": "Build using Linux GCC RelWithDebInfo configuration"
+    },
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang-debug",
+      "displayName": "Build Linux Clang Debug",
+      "description": "Build using Linux Clang Debug configuration"
+    },
+    {
+      "name": "linux-clang-release",
+      "configurePreset": "linux-clang-release",
+      "displayName": "Build Linux Clang Release",
+      "description": "Build using Linux Clang Release configuration"
+    },
+    {
+      "name": "linux-clang-relwithdebinfo",
+      "configurePreset": "linux-clang-relwithdebinfo",
+      "displayName": "Build Linux Clang RelWithDebInfo",
+      "description": "Build using Linux Clang RelWithDebInfo configuration"
+    },
+    {
+      "name": "macos-clang-debug",
+      "configurePreset": "macos-clang-debug",
+      "displayName": "Build macOS Clang Debug",
+      "description": "Build using macOS Clang Debug configuration"
+    },
+    {
+      "name": "macos-clang-release",
+      "configurePreset": "macos-clang-release",
+      "displayName": "Build macOS Clang Release",
+      "description": "Build using macOS Clang Release configuration"
+    },
+    {
+      "name": "macos-clang-relwithdebinfo",
+      "configurePreset": "macos-clang-relwithdebinfo",
+      "displayName": "Build macOS Clang RelWithDebInfo",
+      "description": "Build using macOS Clang RelWithDebInfo configuration"
+    },
+    {
+      "name": "windows-msvc-debug",
+      "configurePreset": "windows-msvc-debug",
+      "displayName": "Build Windows MSVC Debug",
+      "description": "Build using Windows MSVC Debug configuration",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-release",
+      "configurePreset": "windows-msvc-release",
+      "displayName": "Build Windows MSVC Release",
+      "description": "Build using Windows MSVC Release configuration",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-relwithdebinfo",
+      "configurePreset": "windows-msvc-relwithdebinfo",
+      "displayName": "Build Windows MSVC RelWithDebInfo",
+      "description": "Build using Windows MSVC RelWithDebInfo configuration",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-clang-debug",
+      "configurePreset": "windows-clang-debug",
+      "displayName": "Build Windows Clang Debug",
+      "description": "Build using Windows Clang Debug configuration"
+    },
+    {
+      "name": "windows-clang-release",
+      "configurePreset": "windows-clang-release",
+      "displayName": "Build Windows Clang Release",
+      "description": "Build using Windows Clang Release configuration"
+    },
+    {
+      "name": "windows-clang-relwithdebinfo",
+      "configurePreset": "windows-clang-relwithdebinfo",
+      "displayName": "Build Windows Clang RelWithDebInfo",
+      "description": "Build using Windows Clang RelWithDebInfo configuration"
+    },
+    {
+      "name": "android-qt-debug-arm64",
+      "configurePreset": "android-qt-debug-arm64",
+      "displayName": "Build Android Qt Debug (arm64-v8a)",
+      "description": "Build using Android Qt Debug arm64 configuration"
+    },
+    {
+      "name": "android-qt-relwithdebinfo-arm64",
+      "configurePreset": "android-qt-relwithdebinfo-arm64",
+      "displayName": "Build Android Qt RelWithDebInfo (arm64-v8a)",
+      "description": "Build using Android Qt RelWithDebInfo arm64 configuration"
+    },
+    {
+      "name": "android-qt-release-arm64",
+      "configurePreset": "android-qt-release-arm64",
+      "displayName": "Build Android Qt Release (arm64-v8a)",
+      "description": "Build using Android Qt Release arm64 configuration"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base-test",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    },
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc-debug",
+      "inherits": "base-test",
+      "displayName": "Test Linux GCC Debug"
+    },
+    {
+      "name": "linux-gcc-release",
+      "configurePreset": "linux-gcc-release",
+      "inherits": "base-test",
+      "displayName": "Test Linux GCC Release"
+    },
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang-debug",
+      "inherits": "base-test",
+      "displayName": "Test Linux Clang Debug"
+    },
+    {
+      "name": "linux-clang-release",
+      "configurePreset": "linux-clang-release",
+      "inherits": "base-test",
+      "displayName": "Test Linux Clang Release"
+    },
+    {
+      "name": "macos-clang-debug",
+      "configurePreset": "macos-clang-debug",
+      "inherits": "base-test",
+      "displayName": "Test macOS Clang Debug"
+    },
+    {
+      "name": "macos-clang-release",
+      "configurePreset": "macos-clang-release",
+      "inherits": "base-test",
+      "displayName": "Test macOS Clang Release"
+    },
+    {
+      "name": "windows-msvc-debug",
+      "configurePreset": "windows-msvc-debug",
+      "inherits": "base-test",
+      "displayName": "Test Windows MSVC Debug"
+    },
+    {
+      "name": "windows-msvc-release",
+      "configurePreset": "windows-msvc-release",
+      "inherits": "base-test",
+      "displayName": "Test Windows MSVC Release"
+    },
+    {
+      "name": "windows-clang-debug",
+      "configurePreset": "windows-clang-debug",
+      "inherits": "base-test",
+      "displayName": "Test Windows Clang Debug"
+    },
+    {
+      "name": "windows-clang-release",
+      "configurePreset": "windows-clang-release",
+      "inherits": "base-test",
+      "displayName": "Test Windows Clang Release"
+    },
+    {
+      "name": "android-qt-debug-arm64",
+      "configurePreset": "android-qt-debug-arm64",
+      "inherits": "base-test",
+      "displayName": "Test Android Qt Debug (arm64-v8a)"
+    },
+    {
+      "name": "android-qt-relwithdebinfo-arm64",
+      "configurePreset": "android-qt-relwithdebinfo-arm64",
+      "inherits": "base-test",
+      "displayName": "Test Android Qt RelWithDebInfo (arm64-v8a)"
+    },
+    {
+      "name": "android-qt-release-arm64",
+      "configurePreset": "android-qt-release-arm64",
+      "inherits": "base-test",
+      "displayName": "Test Android Qt Release (arm64-v8a)"
+    }
+  ]
+}

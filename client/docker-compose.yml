@@ -1,0 +1,51 @@
+# Docker Compose configuration for Client
+# Usage:
+#   docker-compose build          # Build the image
+#   docker-compose up             # Run and build the project
+#   docker-compose run client sh  # Interactive shell in container
+version: "3.8"
+services:
+  client:
+    build:
+      context: .. # Parent directory (whatever/)
+      dockerfile: client/Dockerfile # Path to Dockerfile from context
+    image: client:latest
+    container_name: client
+    # Volume mounts for development
+    volumes:
+      # Mount source code for development
+      - ./:/workspace/client
+      # Cache build artifacts (optional, for faster rebuilds)
+      - client-build-cache:/workspace/client/build
+      - client-cpm-cache:/workspace/client/.cpm_cache
+      - client-conan-cache:/root/.conan2
+    # Environment variables
+    environment:
+      - BUILD_TYPE=${BUILD_TYPE:-Release}
+      - PLATFORM=${PLATFORM:-linux}
+      - COMPILER=${COMPILER:-gcc}
+      - QT_QPA_PLATFORM=offscreen
+      - JOBS=${JOBS:-4}
+    # Working directory
+    working_dir: /workspace/client
+    # Default command (can be overridden)
+    command: make build
+    # Network mode
+    network_mode: bridge
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4G
+        reservations:
+          cpus: "2"
+          memory: 2G
+# Named volumes for caching
+volumes:
+  client-build-cache:
+    driver: local
+  client-cpm-cache:
+    driver: local
+  client-conan-cache:
+    driver: local

@@ -1,0 +1,78 @@
+# Build directories
+build/
+bin/
+.cpm_cache/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Conan cache
+.conan/
+test_package/build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+*.egg
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker files (don't copy Dockerfile into itself)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Test results
+*.xml
+*.junit
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+.Trash-*
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/

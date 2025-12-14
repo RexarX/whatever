@@ -1,0 +1,21 @@
+[settings]
+arch=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=gnu23
+compiler.libcxx=libstdc++11
+compiler.version=15
+os=Linux
+
+[conf]
+# Force C17 standard for C code to avoid GCC 15 C23 issues with old packages
+tools.build:cflags=["-std=gnu17"]
+tools.build:cxxflags=["-std=gnu23"]
+
+# Use system libs where possible to avoid building problematic packages
+tools.system.package_manager:mode=install
+tools.system.package_manager:sudo=True
+
+[buildenv]
+# Ensure C17 is used for all C compilations
+CFLAGS=-std=gnu17
