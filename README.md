@@ -130,24 +130,24 @@ make embedded-monitor PORT=/dev/ttyUSB0
 
 ```bash
 make client-install-deps
-make client-configure BUILD_TYPE=debug
-make client-build BUILD_TYPE=debug
-make client-test BUILD_TYPE=debug
+make client-configure BUILD_TYPE=Release
+make client-build BUILD_TYPE=Release
+make client-test BUILD_TYPE=Release
 ```
 
 #### Development Cycle
 
 - Edit code in `src/`
-- Rebuild: `make client-build BUILD_TYPE=debug`
-- Run tests: `make client-test BUILD_TYPE=debug`
+- Rebuild: `make client-build BUILD_TYPE=Release`
+- Run tests: `make client-test BUILD_TYPE=Release`
 - Format: `make client-format`
-- Lint: `make client-lint BUILD_TYPE=debug`
+- Lint: `make client-lint BUILD_TYPE=Release`
 
 #### Release Build
 
 ```bash
-make client-build BUILD_TYPE=release
-make client-test BUILD_TYPE=release
+make client-build BUILD_TYPE=Release
+make client-test BUILD_TYPE=Release
 ```
 
 ### Embedded Build
@@ -238,6 +238,64 @@ Python scripts in `client/scripts/` automate configuration, building, testing, a
 
 Each script supports `--help` for usage details.
 
+### Interactive Usage Examples
+
+All Python scripts are interactive by default. When you run them without extra arguments, they will prompt you for missing information, confirm actions, and guide you through the process step by step.
+
+#### Example: Installing Dependencies
+
+```bash
+cd client
+python3 scripts/install_deps.py
+```
+
+- The script will check for missing dependencies and interactively ask if you want to install them.
+- If system packages are missing, it will show the required commands and ask for confirmation before proceeding.
+
+#### Example: Configuring the Project
+
+```bash
+cd client
+python3 scripts/configure.py
+```
+
+- You will be prompted to select build type (Debug/Release), compiler, and other options if not specified via command line.
+- The script will display detected options and ask for confirmation before generating build files.
+
+#### Example: Building the Project
+
+```bash
+cd client
+python3 scripts/build.py
+```
+
+- If you haven't configured the project yet, the script will offer to run the configuration step for you.
+- You can specify build type or number of jobs interactively, or pass them as arguments.
+
+#### Example: Formatting and Linting
+
+```bash
+cd client
+python3 scripts/format.py
+python3 scripts/lint.py
+```
+
+- These scripts will ask for confirmation before making changes (formatting) or let you choose the build type for linting.
+
+#### Getting Help
+
+All scripts provide detailed help and usage instructions:
+
+```bash
+python3 scripts/install_deps.py --help
+python3 scripts/configure.py --help
+python3 scripts/build.py --help
+python3 scripts/format.py --help
+python3 scripts/lint.py --help
+```
+
+You can always run a script without arguments to be guided interactively, or provide command-line flags for automation.
+
 ---
 
 ## Make Targets & Build Variables
@@ -251,10 +309,10 @@ Each script supports `--help` for usage details.
 
 - `make client-install-deps`
 - `make client-configure`
-- `make client-build BUILD_TYPE=release`
-- `make client-test BUILD_TYPE=release`
+- `make client-build BUILD_TYPE=Release`
+- `make client-test BUILD_TYPE=Release`
 - `make client-format`
-- `make client-lint BUILD_TYPE=release`
+- `make client-lint BUILD_TYPE=Release`
 - `make client-clean`
 
 #### Docker
@@ -280,7 +338,7 @@ Each script supports `--help` for usage details.
 
 ### Build Variables
 
-- `BUILD_TYPE=debug|release|relwithdebinfo`
+- `BUILD_TYPE=Release|Release|RelWithDebInfo`
 - `COMPILER=gcc|clang`
 - `JOBS=8` (parallel build)
 - `USE_CONAN=1` (use Conan for dependencies)
