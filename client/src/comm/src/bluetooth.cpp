@@ -25,6 +25,11 @@
 #include <QObject>
 #include <QTimer>
 
+#ifdef CLIENT_PLATFORM_ANDROID
+#include <QBluetoothPermission>
+#include <QPermission>
+#endif
+
 #endif  // CLIENT_COMM_HAS_BLUETOOTH
 
 namespace client::comm {
@@ -132,6 +137,37 @@ auto BluetoothManagerQt::Initialize() -> std::expected<void, BluetoothError> {
   if (initialized_) {
     return {};
   }
+
+#ifdef CLIENT_PLATFORM_ANDROID
+  // Request Bluetooth permissions on Android
+  QBluetoothPermission bluetooth_permission;
+  bluetooth_permission.setCommunicationModes(QBluetoothPermission::Access);
+
+  switch (qApp->checkPermission(bluetooth_permission)) {
+    case Qt::PermissionStatus::Undetermined:
+      qApp->requestPermission(bluetooth_permission, this, [this](const QPermission& permission) {
+        if (permission.status() == Qt::PermissionStatus::Granted) {
+          CLIENT_INFO("Bluetooth permissions granted");
+        } else {
+          CLIENT_WARN("Bluetooth permissions denied");
+          last_error_ = "Bluetooth permissions denied by user";
+        }
+      });
+      // Return success - actual initialization will happen after permission is granted
+      // User should call Initialize() again or handle the async permission result
+      last_error_ = "Bluetooth permissions pending - please grant permissions and try again";
+      return std::unexpected(BluetoothError::kNotEnabled);
+
+    case Qt::PermissionStatus::Denied:
+      CLIENT_WARN("Bluetooth permissions denied");
+      last_error_ = "Bluetooth permissions denied - please enable in settings";
+      return std::unexpected(BluetoothError::kNotEnabled);
+
+    case Qt::PermissionStatus::Granted:
+      CLIENT_INFO("Bluetooth permissions already granted");
+      break;
+  }
+#endif
 
   local_device_ = std::make_unique<QBluetoothLocalDevice>(this);
   if (!local_device_->isValid()) {

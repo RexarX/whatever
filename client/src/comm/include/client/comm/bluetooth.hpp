@@ -313,8 +313,13 @@ public:
   [[nodiscard]] const Protocol& GetProtocol() const noexcept;
 
 private:
+#ifdef CLIENT_PLATFORM_ANDROID
+  static constexpr size_t kImplSize = 512;
+  static constexpr size_t kImplAlign = 16;
+#else
   static constexpr size_t kImplSize = 416;
   static constexpr size_t kImplAlign = 8;
+#endif
 
   struct Impl;
   utils::FastPimpl<Impl, kImplSize, kImplAlign> impl_;

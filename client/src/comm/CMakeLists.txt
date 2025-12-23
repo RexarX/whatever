@@ -193,6 +193,8 @@ if(COMMAND client_target_set_folder)
     client_target_set_folder(client_comm "Libraries")
 endif()
 
+client_target_set_platform(client_comm)
+
 # Export the consumer interface definition
 target_compile_definitions(client_comm INTERFACE
     CLIENT_COMM_USING_SHARED

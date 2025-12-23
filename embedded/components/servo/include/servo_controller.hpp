@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <driver/mcpwm_prelude.h>
 #include <esp_err.h>
 
 #include <atomic>
@@ -28,21 +29,26 @@ struct ServoState {
  * @brief Servo controller configuration.
  */
 struct ServoConfig {
-  float pan_min = -90.0F;    ///< Minimum pan angle in degrees.
-  float pan_max = 90.0F;     ///< Maximum pan angle in degrees.
-  float tilt_min = -45.0F;   ///< Minimum tilt angle in degrees.
-  float tilt_max = 45.0F;    ///< Maximum tilt angle in degrees.
-  float speed = 1.0F;        ///< Movement speed (0.0 to 1.0).
-  float smoothing = 0.5F;    ///< Smoothing factor (0.0 to 1.0).
-  float dead_zone = 1.0F;    ///< Dead zone in degrees (minimum movement threshold).
-  bool invert_pan = false;   ///< Invert pan direction.
-  bool invert_tilt = false;  ///< Invert tilt direction.
+  int pan_gpio = 12;                      ///< GPIO pin for pan servo.
+  int tilt_gpio = 14;                     ///< GPIO pin for tilt servo.
+  float pan_min = -90.0F;                 ///< Minimum pan angle in degrees.
+  float pan_max = 90.0F;                  ///< Maximum pan angle in degrees.
+  float tilt_min = -45.0F;                ///< Minimum tilt angle in degrees.
+  float tilt_max = 45.0F;                 ///< Maximum tilt angle in degrees.
+  float speed = 1.0F;                     ///< Movement speed (0.0 to 1.0).
+  float smoothing = 0.5F;                 ///< Smoothing factor (0.0 to 1.0).
+  float dead_zone = 1.0F;                 ///< Dead zone in degrees (minimum movement threshold).
+  bool invert_pan = false;                ///< Invert pan direction.
+  bool invert_tilt = false;               ///< Invert tilt direction.
+  uint32_t servo_min_pulse_us = 500;      ///< Minimum pulse width in microseconds.
+  uint32_t servo_max_pulse_us = 2500;     ///< Maximum pulse width in microseconds.
+  uint32_t servo_center_pulse_us = 1500;  ///< Center pulse width in microseconds.
 };
 
 /**
  * @brief Servo controller for pan/tilt mechanism.
- * @details This class manages servo movement, calibration, and position tracking.
- * For now, it only logs intended movements instead of actual hardware control.
+ * @details This class manages servo movement, calibration, and position tracking
+ * using ESP32's MCPWM hardware for precise PWM control.
  */
 class ServoController final {
 public:
@@ -141,16 +147,61 @@ private:
   }
 
   /**
-   * @brief Logs servo movement (simulates actual hardware control).
+   * @brief Logs servo movement.
    * @param pan Pan position.
    * @param tilt Tilt position.
    */
   void LogServoMove(float pan, float tilt) const noexcept;
 
+  /**
+   * @brief Converts angle to pulse width in microseconds.
+   * @param angle Angle in degrees.
+   * @param min_pulse Minimum pulse width in microseconds.
+   * @param max_pulse Maximum pulse width in microseconds.
+   * @param center_pulse Center pulse width in microseconds.
+   * @return Pulse width in microseconds.
+   */
+  [[nodiscard]] static constexpr uint32_t AngleToPulseWidth(float angle, uint32_t min_pulse, uint32_t max_pulse,
+                                                            uint32_t center_pulse) noexcept {
+    // angle: -90 to +90 degrees
+    // -90 -> min_pulse, 0 -> center_pulse, +90 -> max_pulse
+    const float normalized = angle / 90.0F;  // -1.0 to +1.0
+    if (normalized < 0.0F) {
+      // Interpolate between min and center
+      return static_cast<uint32_t>(static_cast<float>(center_pulse) +
+                                   normalized * static_cast<float>(center_pulse - min_pulse));
+    } else {
+      // Interpolate between center and max
+      return static_cast<uint32_t>(static_cast<float>(center_pulse) +
+                                   normalized * static_cast<float>(max_pulse - center_pulse));
+    }
+  }
+
+  /**
+   * @brief Sets the PWM duty cycle for a servo.
+   * @param comparator MCPWM comparator handle.
+   * @param pulse_width_us Pulse width in microseconds.
+   * @return ESP_OK on success, error code otherwise.
+   */
+  esp_err_t SetServoPulse(mcpwm_cmpr_handle_t comparator, uint32_t pulse_width_us) noexcept;
+
+  /**
+   * @brief Actually moves the physical servos to the current state position.
+   */
+  void ApplyServoPositions() noexcept;
+
   ServoConfig config_;
   ServoState state_;
   bool initialized_ = false;
   uint64_t last_move_time_ = 0;
+  mcpwm_timer_handle_t pan_timer_ = nullptr;
+  mcpwm_timer_handle_t tilt_timer_ = nullptr;
+  mcpwm_oper_handle_t pan_operator_ = nullptr;
+  mcpwm_oper_handle_t tilt_operator_ = nullptr;
+  mcpwm_cmpr_handle_t pan_comparator_ = nullptr;
+  mcpwm_cmpr_handle_t tilt_comparator_ = nullptr;
+  mcpwm_gen_handle_t pan_generator_ = nullptr;
+  mcpwm_gen_handle_t tilt_generator_ = nullptr;
 };
 
 }  // namespace embedded

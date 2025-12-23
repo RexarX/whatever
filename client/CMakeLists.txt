@@ -326,9 +326,24 @@ if(QT_FOUND)
             message(STATUS "  ✓ Added libc++_shared.so to Android extra libs")
         endif()
 
+        # Set Android permissions
+        set(_android_permissions
+            "android.permission.BLUETOOTH_SCAN"
+            "android.permission.BLUETOOTH_CONNECT"
+            "android.permission.BLUETOOTH_ADVERTISE"
+            "android.permission.BLUETOOTH"
+            "android.permission.BLUETOOTH_ADMIN"
+            "android.permission.ACCESS_FINE_LOCATION"
+            "android.permission.ACCESS_COARSE_LOCATION"
+            "android.permission.CAMERA"
+            "android.permission.INTERNET"
+            "android.permission.ACCESS_NETWORK_STATE"
+        )
+
         # Set Android-specific properties on the target
         set_target_properties(${PROJECT_NAME} PROPERTIES
             QT_ANDROID_EXTRA_LIBS "${_android_extra_libs}"
+            QT_ANDROID_EXTRA_PERMISSIONS "${_android_permissions}"
             QT_ANDROID_MIN_SDK_VERSION 28
             QT_ANDROID_TARGET_SDK_VERSION 34
             QT_ANDROID_SDK_BUILD_TOOLS_REVISION "35.0.0"
